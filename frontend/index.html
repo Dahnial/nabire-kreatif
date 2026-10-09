@@ -2,7 +2,7 @@
 <html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Nabire Kreatif — Platform Produk Digital, Template Web & Kelas Online</title>
   <meta name="description" content="Pusat E-Book, Template Website modern lengkap video tutorial, Jasa Desain Grafis & Web, serta Kelas Online terbaik di Nabire dan Papua.">
   <meta name="keywords" content="Nabire Kreatif, Produk Digital Nabire, Template Web Papua, Jasa Desain Nabire, Kelas Online Google Apps Script">
@@ -24,20 +24,47 @@
   <header class="navbar">
     <div class="container nav-container">
       <div class="brand" onclick="window.AppInstance.switchView('catalog')">
-        <div class="brand-logo">✨</div>
+        <div class="brand-logo">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        </div>
         <div class="brand-text">
           <h1>Nabire Kreatif</h1>
           <span>Digital Products & Skills</span>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
+      <!-- Navigation Tabs (Desktop) -->
       <ul class="nav-menu">
-        <li><a href="#" class="nav-link active" data-nav-target="catalog">🛍️ Katalog</a></li>
-        <li><a href="#" class="nav-link" data-nav-target="jasa">🎨 Jasa Desain & Web</a></li>
-        <li><a href="#" class="nav-link" data-nav-target="kelas">🎓 Kelas Online</a></li>
-        <li><a href="#" class="nav-link" data-nav-target="member">📚 Produk Saya</a></li>
-        <li><a href="#" class="nav-link" data-nav-target="admin" style="display: none;">⚡ Panel Admin</a></li>
+        <li>
+          <a href="#" class="nav-link active" data-nav-target="catalog">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Katalog
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link" data-nav-target="jasa">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+            Jasa Desain & Web
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link" data-nav-target="kelas">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            Kelas Online
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link" data-nav-target="member">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Produk Saya
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link" data-nav-target="admin" style="display: none;">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Panel Admin
+          </a>
+        </li>
       </ul>
 
       <!-- User & Theme Actions -->
@@ -45,12 +72,75 @@
         <div id="authSection">
           <!-- Populated by auth.js -->
         </div>
-        <button id="btnThemeToggle" class="btn-icon" title="Ganti Mode Gelap / Terang">🌓</button>
+        <button id="btnThemeToggle" class="btn-icon" title="Ganti Mode Gelap / Terang">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button id="btnToggleDrawer" class="hamburger-btn" title="Menu Navigasi HP">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- 2. MAIN APPLICATION VIEWS -->
+  <!-- 2. MOBILE DRAWER OVERLAY -->
+  <div id="mobileDrawerOverlay" class="mobile-drawer-overlay">
+    <div class="mobile-drawer">
+      <div class="drawer-header">
+        <div class="brand">
+          <div class="brand-logo" style="width:32px; height:32px;">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+          </div>
+          <div class="brand-text">
+            <h1 style="font-size:1rem;">Nabire Kreatif</h1>
+          </div>
+        </div>
+        <button id="btnCloseDrawer" class="btn-close">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <ul class="drawer-links">
+        <li>
+          <a href="#" class="drawer-link active" data-drawer-nav="catalog">
+            <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Katalog Produk & Kelas
+          </a>
+        </li>
+        <li>
+          <a href="#" class="drawer-link" data-drawer-nav="jasa">
+            <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+            Jasa Pembuatan Web & Desain
+          </a>
+        </li>
+        <li>
+          <a href="#" class="drawer-link" data-drawer-nav="kelas">
+            <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            Kelas Pelatihan Online
+          </a>
+        </li>
+        <li>
+          <a href="#" class="drawer-link" data-drawer-nav="member">
+            <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Akses & Unduhan Saya
+          </a>
+        </li>
+        <li>
+          <a href="#" class="drawer-link" data-drawer-nav="admin" id="drawerAdminLink" style="display: none;">
+            <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Panel Manajemen Admin
+          </a>
+        </li>
+        <li>
+          <a href="#faqSection" class="drawer-link" onclick="window.AppInstance.closeDrawer()">
+            <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Tanya Jawab (FAQ)
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3. MAIN APPLICATION VIEWS -->
   <main class="container">
 
     <!-- ==================== VIEW 1: KATALOG UTAMA ==================== -->
@@ -58,17 +148,24 @@
       <!-- Hero Banner -->
       <section class="hero-section">
         <div class="hero-pill">
-          <span>🚀 Memberdayakan Kreator & UMKM Nabire Menuju Era Digital</span>
+          <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Memberdayakan Kreator & UMKM Nabire Menuju Era Digital</span>
         </div>
         <h2 class="hero-title">
           Tingkatkan Skill Digital & Bisnismu Bersama <span class="gradient-text">Nabire Kreatif</span>
         </h2>
         <p class="hero-description">
-          Akses e-book praktis, template website siap pakai lengkap dengan video panduan langkah demi langkah, jasa pengerjaan web & desain profesional, serta kelas online bergaransi.
+          Akses e-book praktis, template website siap pakai lengkap video tutorial, jasa web & desain profesional, serta kelas online bergaransi.
         </p>
         <div class="hero-actions">
-          <button class="btn-primary" onclick="window.AppInstance.switchView('catalog')">🔥 Jelajahi Semua Produk</button>
-          <a href="#" class="btn-secondary wa-consult-btn" target="_blank">💬 Konsultasi Jasa via WhatsApp</a>
+          <button class="btn-primary" onclick="window.AppInstance.switchView('catalog')">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Jelajahi Produk & Kelas
+          </button>
+          <a href="#" class="btn-secondary wa-consult-btn" target="_blank">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Konsultasi Jasa via WhatsApp
+          </a>
         </div>
       </section>
 
@@ -76,15 +173,30 @@
       <section class="toolbar-section">
         <div class="glass-panel toolbar-wrapper">
           <div class="category-chips">
-            <button class="chip-btn active" data-category="all">🌟 Semua</button>
-            <button class="chip-btn" data-category="ebook">📚 E-Book</button>
-            <button class="chip-btn" data-category="template">💻 Template Web</button>
-            <button class="chip-btn" data-category="jasa">🎨 Jasa Skill</button>
-            <button class="chip-btn" data-category="kelas">🎓 Kelas Online</button>
+            <button class="chip-btn active" data-category="all">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 12 8"/></svg>
+              Semua
+            </button>
+            <button class="chip-btn" data-category="ebook">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              E-Book
+            </button>
+            <button class="chip-btn" data-category="template">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Template Web
+            </button>
+            <button class="chip-btn" data-category="jasa">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+              Jasa Skill
+            </button>
+            <button class="chip-btn" data-category="kelas">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              Kelas Online
+            </button>
           </div>
 
           <div class="search-box">
-            <span class="search-icon">🔍</span>
+            <svg class="svg-icon svg-icon-sm search-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="searchInput" class="search-input" placeholder="Cari template, ebook, kelas...">
           </div>
         </div>
@@ -101,9 +213,51 @@
         </div>
 
         <div id="catalogEmpty" class="glass-card state-box" style="display: none;">
-          <div class="state-icon">🔍</div>
+          <div class="state-icon">
+            <svg class="svg-icon svg-icon-xl" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
           <h3>Produk Tidak Ditemukan</h3>
           <p>Coba kata kunci pencarian lain atau pilih kategori yang berbeda.</p>
+        </div>
+      </section>
+
+      <!-- Section: Lacak Pesanan Cepat (Public Order Tracker) -->
+      <section>
+        <div class="glass-card track-order-card">
+          <div style="color:var(--cyan-400); margin-bottom:0.5rem;">
+            <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3 style="font-size: 1.25rem; font-weight: 800;">Lacak Status Pesanan</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Masukkan ID Pesanan (contoh: <code>ORD-20261010-001</code>) untuk memeriksa status persetujuan transaksi Anda.</p>
+          <div class="track-form">
+            <input type="text" id="trackOrderIdInput" class="form-control" placeholder="Contoh: ORD-20261010-001" style="text-transform: uppercase;">
+            <button class="btn-primary" onclick="window.AppInstance.handleTrackOrder()" style="white-space: nowrap;">Cek Status</button>
+          </div>
+          <div id="trackResultBox" style="margin-top: 1rem; display: none;"></div>
+        </div>
+      </section>
+
+      <!-- Section: Testimoni Pengguna -->
+      <section id="testimonialsSection">
+        <div class="section-title-wrap">
+          <span class="badge badge-primary">Review & Testimoni</span>
+          <h2>Apa Kata Pembeli & Klien Kami?</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Kepuasan dan keberhasilan kreator Papua adalah prioritas utama kami.</p>
+        </div>
+        <div id="testimonialsGrid" class="testimonials-grid">
+          <!-- Populated by app.js from config -->
+        </div>
+      </section>
+
+      <!-- Section: FAQ (Frequently Asked Questions) -->
+      <section id="faqSection">
+        <div class="section-title-wrap">
+          <span class="badge badge-cyan">Pusat Bantuan</span>
+          <h2>Pertanyaan yang Sering Diajukan (FAQ)</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Informasi seputar pembelian, akses file materi, dan garansi layanan.</p>
+        </div>
+        <div id="faqContainer" class="faq-container">
+          <!-- Populated by app.js from config -->
         </div>
       </section>
     </div>
@@ -111,7 +265,7 @@
     <!-- ==================== VIEW 2: DASHBOARD MEMBER ("PRODUK SAYA") ==================== -->
     <div id="viewMember" class="app-view dashboard-view" style="display: none; padding-top: 2rem;">
       <div class="section-header">
-        <h2>📚 Akses Belajar & Unduhan Saya</h2>
+        <h2>Akses Belajar & Unduhan Saya</h2>
         <p>Semua e-book, template source code, dan materi video kelas yang telah Anda miliki.</p>
       </div>
 
@@ -128,41 +282,69 @@
     <div id="viewAdmin" class="app-view dashboard-view" style="display: none; padding-top: 2rem;">
       <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <h2>⚡ Panel Manajemen & Approval Admin</h2>
+          <h2>Panel Manajemen & Approval Admin</h2>
           <p>Verifikasi bukti pembayaran pembeli dan kelola katalog produk Nabire Kreatif.</p>
         </div>
         <button class="btn-primary" onclick="document.getElementById('modalAddProduct').classList.add('active')">
-          + Tambah Produk Baru
+          <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Tambah Produk Baru
         </button>
       </div>
 
       <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="glass-card stat-card">
-          <div class="stat-icon">💰</div>
+          <div class="stat-icon">
+            <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
           <div class="stat-value" id="adminStatRevenue">Rp 0</div>
           <div class="stat-label">Total Omset Disetujui</div>
         </div>
         <div class="glass-card stat-card">
-          <div class="stat-icon">⏳</div>
+          <div class="stat-icon" style="color: var(--amber-400);">
+            <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
           <div class="stat-value" style="color: var(--amber-400);" id="adminStatPending">0</div>
           <div class="stat-label">Pesanan Butuh Verifikasi</div>
         </div>
         <div class="glass-card stat-card">
-          <div class="stat-icon">📦</div>
+          <div class="stat-icon">
+            <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
           <div class="stat-value" id="adminStatOrders">0</div>
           <div class="stat-label">Total Semua Transaksi</div>
         </div>
         <div class="glass-card stat-card">
-          <div class="stat-icon">🏷️</div>
+          <div class="stat-icon">
+            <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
           <div class="stat-value" id="adminStatProducts">0</div>
           <div class="stat-label">Total Produk Aktif</div>
         </div>
       </div>
 
-      <!-- Admin Orders Table -->
-      <div class="glass-panel" style="padding: 1.5rem;">
-        <h3 style="margin-bottom: 1rem; font-size: 1.15rem;">📋 Daftar Transaksi Pembelian</h3>
+      <!-- Admin Sub Tabs -->
+      <div class="admin-tabs-nav">
+        <button class="admin-subtab-btn active" id="btnSubtabOrders" onclick="window.AppInstance.switchAdminSubtab('orders')">
+          <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Daftar Transaksi Pesanan
+        </button>
+        <button class="admin-subtab-btn" id="btnSubtabProducts" onclick="window.AppInstance.switchAdminSubtab('products')">
+          <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Kelola Katalog Produk
+        </button>
+      </div>
+
+      <!-- Subtab A: Admin Orders Table -->
+      <div id="adminPanelOrders" class="glass-panel" style="padding: 1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+          <h3 style="font-size: 1.15rem;">Daftar Transaksi Pembelian</h3>
+          <div style="display:flex; gap:0.4rem;">
+            <button class="btn-secondary" style="font-size:0.75rem; padding:0.35rem 0.75rem;" onclick="window.AppInstance.filterAdminOrders('ALL')">Semua</button>
+            <button class="btn-secondary" style="font-size:0.75rem; padding:0.35rem 0.75rem; color:var(--amber-400);" onclick="window.AppInstance.filterAdminOrders('PENDING')">Pending</button>
+            <button class="btn-secondary" style="font-size:0.75rem; padding:0.35rem 0.75rem; color:var(--emerald-400);" onclick="window.AppInstance.filterAdminOrders('APPROVED')">Disetujui</button>
+          </div>
+        </div>
         <div class="table-responsive">
           <table class="data-table">
             <thead>
@@ -181,15 +363,60 @@
           </table>
         </div>
       </div>
+
+      <!-- Subtab B: Admin Product Management Table -->
+      <div id="adminPanelProducts" class="glass-panel" style="padding: 1.5rem; display: none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="font-size: 1.15rem;">Daftar Produk & Kelas</h3>
+          <button class="btn-primary" style="font-size:0.8rem;" onclick="document.getElementById('modalAddProduct').classList.add('active')">+ Tambah</button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Thumbnail & Judul</th>
+                <th>Kategori</th>
+                <th>Harga Normal</th>
+                <th>Harga Promo</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductsTableBody">
+              <!-- Populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
   </main>
 
-  <!-- 3. FLOATING WHATSAPP CONSULTATION WIDGET -->
+  <!-- 4. MOBILE BOTTOM TAB BAR (SMARTPHONE FRIENDLY) -->
+  <nav class="mobile-bottom-bar">
+    <a href="#" class="bottom-tab active" data-bottom-nav="catalog">
+      <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span>Katalog</span>
+    </a>
+    <a href="#" class="bottom-tab" data-bottom-nav="jasa">
+      <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+      <span>Jasa Web</span>
+    </a>
+    <a href="#" class="bottom-tab" data-bottom-nav="kelas">
+      <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      <span>Kelas</span>
+    </a>
+    <a href="#" class="bottom-tab" data-bottom-nav="member">
+      <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Unduhan</span>
+    </a>
+  </nav>
+
+  <!-- 5. FLOATING WHATSAPP CONSULTATION WIDGET -->
   <div class="whatsapp-widget">
     <div id="whatsappPopup" class="whatsapp-popup">
       <div class="whatsapp-popup-header">
-        <span style="font-size: 1.5rem;">💬</span>
+        <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         <div>
           <h4 style="font-size: 0.95rem; font-weight: 700;">Admin Nabire Kreatif</h4>
           <span style="font-size: 0.72rem; opacity: 0.9;">Online • Siap Melayani Anda</span>
@@ -197,32 +424,43 @@
       </div>
       <div class="whatsapp-popup-body">
         <p style="font-size: 0.82rem; color: var(--text-secondary);">
-          Punya pertanyaan seputar produk digital, jasa pembuatan website, atau materi kelas? Pilih topik di bawah:
+          Punya pertanyaan seputar produk digital, jasa web/desain, atau kelas? Pilih topik:
         </p>
         <div class="whatsapp-quick-pills">
-          <a href="#" class="whatsapp-pill-link wa-consult-btn">🎨 Konsultasi Jasa Desain & Web</a>
-          <a href="#" class="whatsapp-pill-link wa-consult-btn">💳 Konfirmasi Pembayaran Manual</a>
-          <a href="#" class="whatsapp-pill-link wa-consult-btn">❓ Tanya Jawab Kelas Online</a>
+          <a href="#" class="whatsapp-pill-link wa-consult-btn">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+            Konsultasi Jasa Desain & Web
+          </a>
+          <a href="#" class="whatsapp-pill-link wa-consult-btn">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Konfirmasi Pembayaran Manual
+          </a>
+          <a href="#" class="whatsapp-pill-link wa-consult-btn">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Tanya Jawab Kelas Online
+          </a>
         </div>
       </div>
     </div>
 
     <button id="btnToggleWhatsapp" class="whatsapp-btn" title="Chat WhatsApp">
-      💬
+      <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </button>
   </div>
 
-  <!-- 4. MODALS -->
+  <!-- 6. MODALS -->
 
   <!-- Modal A: Detail Produk -->
   <div id="modalDetail" class="modal-overlay">
     <div class="modal-container">
       <div class="modal-header">
         <h3 id="detailTitle">Detail Produk</h3>
-        <button class="btn-close">&times;</button>
+        <button class="btn-close">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
       <div class="modal-body">
-        <img id="detailImage" src="" alt="Thumbnail" style="width: 100%; height: 220px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+        <img id="detailImage" src="" alt="Thumbnail" style="width: 100%; height: 210px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
         <p id="detailDesc" style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.9rem; line-height: 1.6;"></p>
         
         <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.6rem;">Fitur & Keunggulan:</h4>
@@ -232,7 +470,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-glass);">
           <div>
             <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Total Investasi:</span>
-            <span id="detailPrice" style="font-size: 1.4rem; font-weight: 800; color: var(--emerald-400);"></span>
+            <span id="detailPrice" style="font-size: 1.35rem; font-weight: 800; color: var(--emerald-400);"></span>
           </div>
           <button id="btnDetailBuy" class="btn-primary">Beli Sekarang</button>
         </div>
@@ -244,8 +482,13 @@
   <div id="modalCheckout" class="modal-overlay">
     <div class="modal-container">
       <div class="modal-header">
-        <h3>🛒 Checkout & Pembayaran</h3>
-        <button class="btn-close">&times;</button>
+        <h3>
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Checkout & Pembayaran
+        </h3>
+        <button class="btn-close">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
       <form id="checkoutForm" class="modal-body">
         <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-glass); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem;">
@@ -277,7 +520,9 @@
         <div class="form-group">
           <label>Unggah Foto Bukti Transfer / Struk *</label>
           <div class="upload-dropzone" onclick="document.getElementById('proofFileInput').click()">
-            <span style="font-size: 1.8rem; display: block; margin-bottom: 0.4rem;">📷</span>
+            <div style="color: var(--cyan-400); margin-bottom: 0.4rem;">
+              <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
             <span style="font-size: 0.85rem; color: var(--text-secondary);">Klik untuk memilih foto struk pembayaran</span>
             <input type="file" id="proofFileInput" accept="image/*" style="display: none;" required>
           </div>
@@ -296,28 +541,35 @@
   <div id="modalLogin" class="modal-overlay">
     <div class="modal-container" style="max-width: 440px;">
       <div class="modal-header">
-        <h3>👤 Masuk ke Nabire Kreatif</h3>
-        <button class="btn-close">&times;</button>
+        <h3>
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Masuk ke Nabire Kreatif
+        </h3>
+        <button class="btn-close">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
       <div class="modal-body" style="text-align: center;">
         <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.5rem;">
-          Gunakan akun Google Anda untuk kemudahan akses e-book, template source code, dan kelas online kapan saja.
+          Gunakan akun Google Anda untuk kemudahan akses e-book, template source code, dan materi kelas kapan saja.
         </p>
 
-        <!-- GIS Official Button Placeholder -->
+        <!-- GIS Button Container -->
         <div id="googleSignInBtn" style="display: flex; justify-content: center; margin-bottom: 1.5rem;"></div>
 
         <div style="position: relative; margin: 1.5rem 0; text-align: center;">
-          <span style="background: var(--bg-surface-elevated); padding: 0 0.75rem; font-size: 0.75rem; color: var(--text-muted); position: relative; z-index: 1;">ATAU UJI COBA CEPAT (MODE DEMO)</span>
+          <span style="background: var(--bg-surface-elevated); padding: 0 0.75rem; font-size: 0.72rem; color: var(--text-muted); position: relative; z-index: 1;">UJI COBA CEPAT (MODE DEMO)</span>
           <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-glass);"></div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
           <button class="btn-secondary" onclick="window.Auth.loginDemo('MEMBER'); window.AppInstance.closeAllModals();">
-            👤 Masuk sebagai Member (Budi Santoso)
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Masuk sebagai Member (Dahnial)
           </button>
           <button class="btn-secondary" style="border-color: rgba(99,102,241,0.4);" onclick="window.Auth.loginDemo('ADMIN'); window.AppInstance.closeAllModals();">
-            ⚡ Masuk sebagai Admin / Owner
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Masuk sebagai Admin / Owner
           </button>
         </div>
       </div>
@@ -328,10 +580,12 @@
   <div id="modalVideo" class="modal-overlay">
     <div class="modal-container" style="max-width: 800px;">
       <div class="modal-header">
-        <h3 id="videoPlayerTitle">🎬 Video Pembelajaran</h3>
-        <button class="btn-close">&times;</button>
+        <h3 id="videoPlayerTitle">Video Pembelajaran</h3>
+        <button class="btn-close">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
-      <div class="modal-body" style="padding: 1rem;">
+      <div class="modal-body" style="padding: 0.75rem;">
         <iframe id="videoIframe" class="video-player-frame" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
       </div>
     </div>
@@ -341,8 +595,10 @@
   <div id="modalProof" class="modal-overlay">
     <div class="modal-container" style="max-width: 500px;">
       <div class="modal-header">
-        <h3>🔍 Foto Bukti Transfer</h3>
-        <button class="btn-close">&times;</button>
+        <h3>Foto Bukti Transfer</h3>
+        <button class="btn-close">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
       <div class="modal-body" style="text-align: center;">
         <img id="proofFullImg" src="" alt="Bukti Transfer" style="max-width: 100%; max-height: 450px; border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
@@ -354,8 +610,10 @@
   <div id="modalAddProduct" class="modal-overlay">
     <div class="modal-container">
       <div class="modal-header">
-        <h3>➕ Tambah Produk / Kelas Baru</h3>
-        <button class="btn-close">&times;</button>
+        <h3>Tambah Produk / Kelas Baru</h3>
+        <button class="btn-close">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
       <form id="addProductForm" class="modal-body">
         <div class="form-group">
@@ -365,10 +623,10 @@
         <div class="form-group">
           <label>Kategori *</label>
           <select id="newProdCategory" class="form-control" required>
-            <option value="template">💻 Template Web</option>
-            <option value="ebook">📚 E-Book</option>
-            <option value="kelas">🎓 Kelas Online</option>
-            <option value="jasa">🎨 Jasa Skill & Desain</option>
+            <option value="template">Template Web</option>
+            <option value="ebook">E-Book</option>
+            <option value="kelas">Kelas Online</option>
+            <option value="jasa">Jasa Skill & Desain</option>
           </select>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
@@ -405,14 +663,72 @@
     </div>
   </div>
 
-  <!-- 5. TOAST NOTIFICATION CONTAINER -->
+  <!-- Modal G: Edit Produk (Admin) -->
+  <div id="modalEditProduct" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Edit Data Produk</h3>
+        <button class="btn-close">
+          <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="editProductForm" class="modal-body">
+        <input type="hidden" id="editProdId">
+        <div class="form-group">
+          <label>Judul Produk *</label>
+          <input type="text" id="editProdTitle" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Kategori *</label>
+          <select id="editProdCategory" class="form-control" required>
+            <option value="template">Template Web</option>
+            <option value="ebook">E-Book</option>
+            <option value="kelas">Kelas Online</option>
+            <option value="jasa">Jasa Skill & Desain</option>
+          </select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Harga Normal (Rp) *</label>
+            <input type="number" id="editProdPrice" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Harga Diskon (Rp)</label>
+            <input type="number" id="editProdDiscount" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>URL Thumbnail</label>
+          <input type="url" id="editProdThumb" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Deskripsi</label>
+          <textarea id="editProdDesc" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Link File Drive / Download</label>
+          <input type="url" id="editProdAccess" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Link Video Pembelajaran</label>
+          <input type="url" id="editProdVideo" class="form-control">
+        </div>
+        <div class="modal-footer" style="padding: 1rem 0 0;">
+          <button type="button" class="btn-secondary btn-close">Batal</button>
+          <button type="submit" class="btn-primary">Update Produk</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- 6. FOOTER -->
+  <!-- 8. FOOTER -->
   <footer class="footer">
     <div class="container footer-content">
       <div>
-        <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">Nabire Kreatif ✨</div>
+        <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">Nabire Kreatif</div>
         <p>Pusat Produk Digital, Template Web & Pelatihan Skill Online Papua.</p>
       </div>
       <div>

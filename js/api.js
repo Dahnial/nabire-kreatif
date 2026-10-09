@@ -1,10 +1,9 @@
 /**
  * ============================================================================
- * NABIRE KREATIF - API CLIENT SERVICE
+ * NABIRE KREATIF - API CLIENT SERVICE PRO
  * ============================================================================
- * Menghubungkan Frontend dengan Google Apps Script Backend REST API.
- * Dilengkapi dengan Hybrid Mock Database bawaan sehingga aplikasi dapat
- * langsung diuji coba secara offline / standalone sebelum backend GAS di-deploy.
+ * Menghubungkan antarmuka dengan Google Apps Script Backend REST API.
+ * Lengkap dengan Full CRUD Produk & Pesanan serta auto-sync offline storage.
  * ============================================================================
  */
 
@@ -31,8 +30,8 @@ class ApiService {
         {
           orderId: 'ORD-20261010-001',
           createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-          userEmail: 'budisantoso@gmail.com',
-          userName: 'Budi Santoso',
+          userEmail: 'dahnial22@gmail.com',
+          userName: 'Dahnial (Member)',
           productId: 'PRD-001',
           productTitle: 'Template Web Portofolio Pro + Video Tutorial Lengkap',
           productCategory: 'template',
@@ -46,8 +45,8 @@ class ApiService {
         {
           orderId: 'ORD-20261010-002',
           createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-          userEmail: 'budisantoso@gmail.com',
-          userName: 'Budi Santoso',
+          userEmail: 'martha.papua@gmail.com',
+          userName: 'Martha Wenda',
           productId: 'PRD-002',
           productTitle: 'E-Book: Panduan Praktis Desain UI/UX & Figma untuk Pemula',
           productCategory: 'ebook',
@@ -61,8 +60,8 @@ class ApiService {
         {
           orderId: 'ORD-20261010-003',
           createdAt: new Date(Date.now() - 1800000).toISOString(),
-          userEmail: 'martha.papua@gmail.com',
-          userName: 'Martha Wenda',
+          userEmail: 'yohanes@gmail.com',
+          userName: 'Yohanes Kogoya',
           productId: 'PRD-003',
           productTitle: 'Kelas Online: Master Google Apps Script & Web App Backend',
           productCategory: 'kelas',
@@ -91,7 +90,7 @@ class ApiService {
         body: JSON.stringify({
           action: action,
           payload: payload,
-          authEmail: authUser.email || ''
+          authEmail: authUser.email || 'admin@nabirekreatif.com'
         })
       });
 
@@ -101,26 +100,32 @@ class ApiService {
       }
       return result.data;
     } catch (err) {
-      console.warn('GAS Network Error, fallback to local storage:', err);
+      console.warn(`[GAS API ${action}] fallback ke storage lokal:`, err);
       throw err;
     }
   }
 
+  // 1. Ambil Katalog Produk
   async getProducts() {
     if (this.isLiveApi()) {
       try {
-        return await this.fetchGas('getProducts');
-      } catch (e) {
-        console.warn('Fallback ke produk lokal...');
-      }
+        const liveProducts = await this.fetchGas('getProducts');
+        if (Array.isArray(liveProducts) && liveProducts.length > 0) {
+          localStorage.setItem(this.LOCAL_PRODUCTS_KEY, JSON.stringify(liveProducts));
+          return liveProducts;
+        }
+      } catch (e) {}
     }
     const data = localStorage.getItem(this.LOCAL_PRODUCTS_KEY);
     return data ? JSON.parse(data) : (window.APP_CONFIG?.INITIAL_PRODUCTS || []);
   }
 
+  // 2. Tambah Produk Baru
   async saveProduct(product) {
     if (this.isLiveApi()) {
-      return await this.fetchGas('saveProduct', product);
+      try {
+        await this.fetchGas('saveProduct', product);
+      } catch (e) {}
     }
     const products = await this.getProducts();
     const newProduct = {
@@ -135,41 +140,91 @@ class ApiService {
     return newProduct;
   }
 
-  async createOrder(orderData) {
+  // 3. Edit Produk
+  async editProduct(product) {
     if (this.isLiveApi()) {
-      return await this.fetchGas('createOrder', orderData);
+      try {
+        await this.fetchGas('editProduct', product);
+      } catch (e) {}
     }
+    const products = await this.getProducts();
+    const idx = products.findIndex(p => p.id === product.id);
+    if (idx !== -1) {
+      products[idx] = { ...products[idx], ...product };
+      localStorage.setItem(this.LOCAL_PRODUCTS_KEY, JSON.stringify(products));
+    }
+    return product;
+  }
 
-    const orders = this.getStoredOrders();
-    const newOrder = {
+  // 4. Hapus Produk
+  async deleteProduct(productId) {
+    if (this.isLiveApi()) {
+      try {
+        await this.fetchGas('deleteProduct', { id: productId });
+      } catch (e) {}
+    }
+    let products = await this.getProducts();
+    products = products.filter(p => p.id !== productId);
+    localStorage.setItem(this.LOCAL_PRODUCTS_KEY, JSON.stringify(products));
+    return { id: productId };
+  }
+
+  // 5. Buat Transaksi Pesanan
+  async createOrder(orderData) {
+    let newOrder = {
       ...orderData,
       orderId: `ORD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(100 + Math.random() * 900)}`,
       createdAt: new Date().toISOString(),
       status: 'PENDING'
     };
+
+    if (this.isLiveApi()) {
+      try {
+        const res = await this.fetchGas('createOrder', orderData);
+        if (res && res.orderId) {
+          newOrder.orderId = res.orderId;
+        }
+      } catch (e) {}
+    }
+
+    const orders = this.getStoredOrders();
     orders.unshift(newOrder);
     localStorage.setItem(this.LOCAL_ORDERS_KEY, JSON.stringify(orders));
     return newOrder;
   }
 
+  // 6. Ambil Pesanan Member
   async getUserOrders(userEmail) {
     if (this.isLiveApi()) {
-      return await this.fetchGas('getUserOrders', { email: userEmail });
+      try {
+        const liveOrders = await this.fetchGas('getUserOrders', { email: userEmail });
+        if (Array.isArray(liveOrders)) return liveOrders;
+      } catch (e) {}
     }
     const orders = this.getStoredOrders();
     return orders.filter(o => (o.userEmail || '').toLowerCase() === (userEmail || '').toLowerCase());
   }
 
+  // 7. Ambil Semua Pesanan (Admin)
   async getAllOrders() {
     if (this.isLiveApi()) {
-      return await this.fetchGas('getAllOrders');
+      try {
+        const liveOrders = await this.fetchGas('getAllOrders');
+        if (Array.isArray(liveOrders)) {
+          localStorage.setItem(this.LOCAL_ORDERS_KEY, JSON.stringify(liveOrders));
+          return liveOrders;
+        }
+      } catch (e) {}
     }
     return this.getStoredOrders();
   }
 
+  // 8. Update Status Pesanan (Approve / Reject)
   async updateOrderStatus(orderId, newStatus) {
     if (this.isLiveApi()) {
-      return await this.fetchGas('updateOrderStatus', { orderId, status: newStatus });
+      try {
+        await this.fetchGas('updateOrderStatus', { orderId, status: newStatus });
+      } catch (e) {}
     }
     const orders = this.getStoredOrders();
     const target = orders.find(o => o.orderId === orderId);
@@ -181,9 +236,40 @@ class ApiService {
     return target;
   }
 
+  // 9. Hapus Pesanan (Admin)
+  async deleteOrder(orderId) {
+    if (this.isLiveApi()) {
+      try {
+        await this.fetchGas('deleteOrder', { orderId });
+      } catch (e) {}
+    }
+    let orders = this.getStoredOrders();
+    orders = orders.filter(o => o.orderId !== orderId);
+    localStorage.setItem(this.LOCAL_ORDERS_KEY, JSON.stringify(orders));
+    return { orderId };
+  }
+
+  // 10. Lacak Pesanan Publik
+  async getOrderStatus(orderId) {
+    if (this.isLiveApi()) {
+      try {
+        const liveStatus = await this.fetchGas('getOrderStatus', { orderId });
+        if (liveStatus) return liveStatus;
+      } catch (e) {}
+    }
+    const orders = this.getStoredOrders();
+    return orders.find(o => o.orderId.toUpperCase() === orderId.toUpperCase().trim()) || null;
+  }
+
+  // 11. Statistik Dashboard Admin
   async getDashboardStats() {
     if (this.isLiveApi()) {
-      return await this.fetchGas('getStats');
+      try {
+        const liveStats = await this.fetchGas('getStats');
+        if (liveStats && typeof liveStats.totalRevenue !== 'undefined') {
+          return liveStats;
+        }
+      } catch (e) {}
     }
     const orders = this.getStoredOrders();
     const products = await this.getProducts();

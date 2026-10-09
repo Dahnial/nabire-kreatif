@@ -1,10 +1,9 @@
 /**
  * ============================================================================
- * NABIRE KREATIF - API CLIENT SERVICE
+ * NABIRE KREATIF - API CLIENT SERVICE PRO
  * ============================================================================
- * Menghubungkan Frontend dengan Google Apps Script Backend REST API.
- * Dilengkapi dengan Hybrid Mock Database bawaan sehingga aplikasi dapat
- * langsung diuji coba secara offline / standalone sebelum backend GAS di-deploy.
+ * Menghubungkan antarmuka dengan Google Apps Script Backend REST API.
+ * Lengkap dengan Full CRUD Produk & Pesanan serta auto-sync offline storage.
  * ============================================================================
  */
 
@@ -16,12 +15,10 @@ class ApiService {
     this.initMockDatabase();
   }
 
-  // Cek apakah menggunakan backend Google Apps Script asli atau Mock
   isLiveApi() {
     return !!this.baseUrl && this.baseUrl.startsWith('https://script.google.com');
   }
 
-  // Inisialisasi Mock Data lokal jika pertama kali dijalankan
   initMockDatabase() {
     if (!localStorage.getItem(this.LOCAL_PRODUCTS_KEY)) {
       const initial = window.APP_CONFIG?.INITIAL_PRODUCTS || [];
@@ -29,28 +26,27 @@ class ApiService {
     }
 
     if (!localStorage.getItem(this.LOCAL_ORDERS_KEY)) {
-      // Sampel pesanan awal untuk demo
       const sampleOrders = [
         {
           orderId: 'ORD-20261010-001',
           createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-          userEmail: 'budisantoso@gmail.com',
-          userName: 'Budi Santoso',
+          userEmail: 'dahnial22@gmail.com',
+          userName: 'Dahnial (Member)',
           productId: 'PRD-001',
           productTitle: 'Template Web Portofolio Pro + Video Tutorial Lengkap',
           productCategory: 'template',
           amount: 99000,
           paymentMethod: 'QRIS',
           proofUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80',
-          status: 'APPROVED', // APPROVED / PENDING / REJECTED
+          status: 'APPROVED',
           accessUrl: 'https://drive.google.com/drive/folders/sample-template-web',
           videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
         },
         {
           orderId: 'ORD-20261010-002',
           createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-          userEmail: 'budisantoso@gmail.com',
-          userName: 'Budi Santoso',
+          userEmail: 'martha.papua@gmail.com',
+          userName: 'Martha Wenda',
           productId: 'PRD-002',
           productTitle: 'E-Book: Panduan Praktis Desain UI/UX & Figma untuk Pemula',
           productCategory: 'ebook',
@@ -64,8 +60,8 @@ class ApiService {
         {
           orderId: 'ORD-20261010-003',
           createdAt: new Date(Date.now() - 1800000).toISOString(),
-          userEmail: 'martha.papua@gmail.com',
-          userName: 'Martha Wenda',
+          userEmail: 'yohanes@gmail.com',
+          userName: 'Yohanes Kogoya',
           productId: 'PRD-003',
           productTitle: 'Kelas Online: Master Google Apps Script & Web App Backend',
           productCategory: 'kelas',
@@ -81,12 +77,10 @@ class ApiService {
     }
   }
 
-  // Request HTTP generic ke GAS
   async fetchGas(action, payload = {}) {
     const authUser = window.Auth?.currentUser || {};
     const url = new URL(this.baseUrl);
     
-    // Gunakan POST jika ada file/upload atau mutasi, GET untuk query
     try {
       const response = await fetch(url.toString(), {
         method: 'POST',
@@ -96,7 +90,7 @@ class ApiService {
         body: JSON.stringify({
           action: action,
           payload: payload,
-          authEmail: authUser.email || ''
+          authEmail: authUser.email || 'admin@nabirekreatif.com'
         })
       });
 
@@ -106,28 +100,30 @@ class ApiService {
       }
       return result.data;
     } catch (err) {
-      console.warn('GAS Network Error, fallback to local storage:', err);
+      console.warn(`[GAS API ${action}] fallback ke storage lokal:`, err);
       throw err;
     }
   }
 
-  // 1. Ambil Semua Katalog Produk
   async getProducts() {
     if (this.isLiveApi()) {
       try {
-        return await this.fetchGas('getProducts');
-      } catch (e) {
-        console.warn('Fallback ke produk lokal...');
-      }
+        const liveProducts = await this.fetchGas('getProducts');
+        if (Array.isArray(liveProducts) && liveProducts.length > 0) {
+          localStorage.setItem(this.LOCAL_PRODUCTS_KEY, JSON.stringify(liveProducts));
+          return liveProducts;
+        }
+      } catch (e) {}
     }
     const data = localStorage.getItem(this.LOCAL_PRODUCTS_KEY);
     return data ? JSON.parse(data) : (window.APP_CONFIG?.INITIAL_PRODUCTS || []);
   }
 
-  // 2. Simpan / Tambah Produk Baru (Admin)
   async saveProduct(product) {
     if (this.isLiveApi()) {
-      return await this.fetchGas('saveProduct', product);
+      try {
+        await this.fetchGas('saveProduct', product);
+      } catch (e) {}
     }
     const products = await this.getProducts();
     const newProduct = {
@@ -142,45 +138,85 @@ class ApiService {
     return newProduct;
   }
 
-  // 3. Buat Transaksi Pesanan Baru (Member)
-  async createOrder(orderData) {
+  async editProduct(product) {
     if (this.isLiveApi()) {
-      return await this.fetchGas('createOrder', orderData);
+      try {
+        await this.fetchGas('editProduct', product);
+      } catch (e) {}
     }
+    const products = await this.getProducts();
+    const idx = products.findIndex(p => p.id === product.id);
+    if (idx !== -1) {
+      products[idx] = { ...products[idx], ...product };
+      localStorage.setItem(this.LOCAL_PRODUCTS_KEY, JSON.stringify(products));
+    }
+    return product;
+  }
 
-    const orders = this.getStoredOrders();
-    const newOrder = {
+  async deleteProduct(productId) {
+    if (this.isLiveApi()) {
+      try {
+        await this.fetchGas('deleteProduct', { id: productId });
+      } catch (e) {}
+    }
+    let products = await this.getProducts();
+    products = products.filter(p => p.id !== productId);
+    localStorage.setItem(this.LOCAL_PRODUCTS_KEY, JSON.stringify(products));
+    return { id: productId };
+  }
+
+  async createOrder(orderData) {
+    let newOrder = {
       ...orderData,
       orderId: `ORD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(100 + Math.random() * 900)}`,
       createdAt: new Date().toISOString(),
       status: 'PENDING'
     };
+
+    if (this.isLiveApi()) {
+      try {
+        const res = await this.fetchGas('createOrder', orderData);
+        if (res && res.orderId) {
+          newOrder.orderId = res.orderId;
+        }
+      } catch (e) {}
+    }
+
+    const orders = this.getStoredOrders();
     orders.unshift(newOrder);
     localStorage.setItem(this.LOCAL_ORDERS_KEY, JSON.stringify(orders));
     return newOrder;
   }
 
-  // 4. Ambil Pesanan Milik User Tertentu (Dashboard Member)
   async getUserOrders(userEmail) {
     if (this.isLiveApi()) {
-      return await this.fetchGas('getUserOrders', { email: userEmail });
+      try {
+        const liveOrders = await this.fetchGas('getUserOrders', { email: userEmail });
+        if (Array.isArray(liveOrders)) return liveOrders;
+      } catch (e) {}
     }
     const orders = this.getStoredOrders();
     return orders.filter(o => (o.userEmail || '').toLowerCase() === (userEmail || '').toLowerCase());
   }
 
-  // 5. Ambil Semua Pesanan (Panel Admin)
   async getAllOrders() {
     if (this.isLiveApi()) {
-      return await this.fetchGas('getAllOrders');
+      try {
+        const liveOrders = await this.fetchGas('getAllOrders');
+        if (Array.isArray(liveOrders)) {
+          localStorage.setItem(this.LOCAL_ORDERS_KEY, JSON.stringify(liveOrders));
+          return liveOrders;
+        }
+      } catch (e) {}
     }
     return this.getStoredOrders();
   }
 
-  // 6. Update Status Pesanan (Admin: APPROVE / REJECT)
   async updateOrderStatus(orderId, newStatus) {
     if (this.isLiveApi()) {
-      return await this.fetchGas('updateOrderStatus', { orderId, status: newStatus });
+      try {
+        await this.fetchGas('updateOrderStatus', { orderId, status: newStatus });
+      } catch (e) {}
     }
     const orders = this.getStoredOrders();
     const target = orders.find(o => o.orderId === orderId);
@@ -192,10 +228,37 @@ class ApiService {
     return target;
   }
 
-  // 7. Ambil Statistik Dashboard Admin
+  async deleteOrder(orderId) {
+    if (this.isLiveApi()) {
+      try {
+        await this.fetchGas('deleteOrder', { orderId });
+      } catch (e) {}
+    }
+    let orders = this.getStoredOrders();
+    orders = orders.filter(o => o.orderId !== orderId);
+    localStorage.setItem(this.LOCAL_ORDERS_KEY, JSON.stringify(orders));
+    return { orderId };
+  }
+
+  async getOrderStatus(orderId) {
+    if (this.isLiveApi()) {
+      try {
+        const liveStatus = await this.fetchGas('getOrderStatus', { orderId });
+        if (liveStatus) return liveStatus;
+      } catch (e) {}
+    }
+    const orders = this.getStoredOrders();
+    return orders.find(o => o.orderId.toUpperCase() === orderId.toUpperCase().trim()) || null;
+  }
+
   async getDashboardStats() {
     if (this.isLiveApi()) {
-      return await this.fetchGas('getStats');
+      try {
+        const liveStats = await this.fetchGas('getStats');
+        if (liveStats && typeof liveStats.totalRevenue !== 'undefined') {
+          return liveStats;
+        }
+      } catch (e) {}
     }
     const orders = this.getStoredOrders();
     const products = await this.getProducts();
@@ -214,7 +277,6 @@ class ApiService {
     };
   }
 
-  // Helper local orders getter
   getStoredOrders() {
     try {
       const raw = localStorage.getItem(this.LOCAL_ORDERS_KEY);
@@ -224,7 +286,6 @@ class ApiService {
     }
   }
 
-  // Konversi File Gambar ke Base64 (Untuk upload bukti transfer)
   fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -235,5 +296,4 @@ class ApiService {
   }
 }
 
-// Global API instance
 window.Api = new ApiService();

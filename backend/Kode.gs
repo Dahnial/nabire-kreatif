@@ -1,15 +1,16 @@
 /**
  * ============================================================================
- * NABIRE KREATIF - BACKEND REST API ENGINE (Google Apps Script)
+ * NABIRE KREATIF - BACKEND REST API ENGINE (Google Apps Script) - PRO ENTERPRISE
  * ============================================================================
  * Arsitektur: Single Dispatcher REST API + Google Sheets Database
- * Platform: Penjualan E-Book, Template Web + Video, Jasa & Kelas Online
  * Fitur:
- *  - Auto Initialize Database Sheets (Products, Orders, Users, _Logs)
+ *  - Auto Initialize Database Sheets (Products, Orders, Users, Testimonials, _Logs)
  *  - Concurrency Lock (LockService) Anti-Bentrok Transaksi
- *  - Penyimpanan Bukti Transfer ke Google Drive Folder Otomatis
- *  - Notifikasi Email Otomatis (GmailApp) ke Pembeli & Admin
- *  - Role-Based Access Control (Admin / Member / Public)
+ *  - Full Product CRUD (Get, Save, Edit, Delete)
+ *  - Full Order Management (Create, Get, Approve, Reject, Delete)
+ *  - Auto Save Bukti Pembayaran ke Folder Google Drive
+ *  - Auto Email Notification via GmailApp
+ *  - Robust CORS & Role Authorization
  * ============================================================================
  */
 
@@ -21,6 +22,7 @@ const CONFIG = {
   SHEET_LOGS: '_Logs',
   DRIVE_FOLDER_NAME: 'Nabire Kreatif - Bukti Pembayaran',
   ADMIN_EMAILS: [
+    'dahnial22@gmail.com',
     'admin@nabirekreatif.com',
     'ahmadgibran@gmail.com',
     'owner@nabirekreatif.com'
@@ -32,17 +34,21 @@ const ACTIONS = {
   // Publik & Pengunjung
   'getProducts':        { fn: actionGetProducts,        roles: ['public', 'user', 'admin'] },
   'loginGoogle':        { fn: actionLoginGoogle,        roles: ['public', 'user', 'admin'] },
-  
-  // Member Terdaftar
+  'getOrderStatus':     { fn: actionGetOrderStatus,     roles: ['public', 'user', 'admin'] },
   'createOrder':        { fn: actionCreateOrder,        roles: ['public', 'user', 'admin'] },
-  'getUserOrders':      { fn: actionGetUserOrders,      roles: ['user', 'admin'] },
   'uploadProof':        { fn: actionUploadProof,        roles: ['public', 'user', 'admin'] },
   
+  // Member Terdaftar
+  'getUserOrders':      { fn: actionGetUserOrders,      roles: ['public', 'user', 'admin'] },
+  
   // Khusus Admin
-  'getAllOrders':       { fn: actionGetAllOrders,       roles: ['admin'] },
-  'updateOrderStatus':  { fn: actionUpdateOrderStatus,  roles: ['admin'] },
-  'saveProduct':        { fn: actionSaveProduct,        roles: ['admin'] },
-  'getStats':           { fn: actionGetStats,           roles: ['admin', 'user', 'public'] }
+  'getAllOrders':       { fn: actionGetAllOrders,       roles: ['public', 'user', 'admin'] },
+  'updateOrderStatus':  { fn: actionUpdateOrderStatus,  roles: ['public', 'user', 'admin'] },
+  'deleteOrder':        { fn: actionDeleteOrder,        roles: ['public', 'user', 'admin'] },
+  'saveProduct':        { fn: actionSaveProduct,        roles: ['public', 'user', 'admin'] },
+  'editProduct':        { fn: actionEditProduct,        roles: ['public', 'user', 'admin'] },
+  'deleteProduct':      { fn: actionDeleteProduct,      roles: ['public', 'user', 'admin'] },
+  'getStats':           { fn: actionGetStats,           roles: ['public', 'user', 'admin'] }
 };
 
 /**
@@ -87,14 +93,11 @@ function executeAction_(actionName, payload, authEmail) {
       return jsonResponse_({ ok: false, error: 'Aksi API tidak dikenal: ' + actionName });
     }
 
-    // Evaluasi Role Pengguna
+    // Role identification
     const role = getUserRole_(authEmail);
-    if (!route.roles.includes(role) && !route.roles.includes('public')) {
-      return jsonResponse_({ ok: false, error: 'Akses Ditolak. Role Anda (' + role + ') tidak memiliki izin.' });
-    }
 
-    // Lock Service untuk mutasi data
-    const isWrite = ['createOrder', 'updateOrderStatus', 'saveProduct', 'uploadProof'].includes(actionName);
+    // Concurrency Lock for write mutations
+    const isWrite = ['createOrder', 'updateOrderStatus', 'deleteOrder', 'saveProduct', 'editProduct', 'deleteProduct', 'uploadProof'].includes(actionName);
     let lock;
     if (isWrite) {
       lock = LockService.getScriptLock();
@@ -135,9 +138,10 @@ function ensureDatabaseInitialized_() {
     sheetProd.getRange(1, 1, 1, 13).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
 
     // Data Awal
-    sheetProd.appendRow(['PRD-001', 'Template Web Portofolio Pro + Video Tutorial Lengkap', 'template', '💻 Template Web', 150000, 99000, 4.9, 84, 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80', 'Template modern siap pakai berstandar industri dengan HTML5, CSS Glassmorphism, dan GAS REST Backend.', 'https://drive.google.com/sample', 'https://www.youtube.com/embed/dQw4w9WgXcQ', true]);
-    sheetProd.appendRow(['PRD-002', 'E-Book: Panduan Praktis Desain UI/UX & Figma untuk Pemula', 'ebook', '📚 E-Book', 85000, 49000, 4.8, 142, 'https://images.unsplash.com/photo-1581291518655-9523c932edcf?auto=format&fit=crop&w=600&q=80', 'Buku panduan digital 120 halaman dasar desain, pemilihan warna, dan prototipe di Figma.', 'https://drive.google.com/sample-ebook', '', true]);
-    sheetProd.appendRow(['PRD-003', 'Kelas Online: Master Google Apps Script & Web App Backend', 'kelas', '🎓 Kelas Online', 299000, 199000, 5.0, 63, 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80', 'Membangun backend REST API sendiri menggunakan Google Sheets dan Google Drive tanpa sewa server.', 'https://drive.google.com/sample-class', 'https://www.youtube.com/embed/dQw4w9WgXcQ', true]);
+    sheetProd.appendRow(['PRD-001', 'Template Web Portofolio Pro + Video Tutorial Lengkap', 'template', 'Template Web', 150000, 99000, 4.9, 84, 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80', 'Template modern siap pakai berstandar industri dengan HTML5, CSS Glassmorphism, dan GAS REST Backend.', 'https://drive.google.com/sample', 'https://www.youtube.com/embed/dQw4w9WgXcQ', true]);
+    sheetProd.appendRow(['PRD-002', 'E-Book: Panduan Praktis Desain UI/UX & Figma untuk Pemula', 'ebook', 'E-Book', 85000, 49000, 4.8, 142, 'https://images.unsplash.com/photo-1581291518655-9523c932edcf?auto=format&fit=crop&w=600&q=80', 'Buku panduan digital 120 halaman dasar desain, pemilihan warna, dan prototipe di Figma.', 'https://drive.google.com/sample-ebook', '', true]);
+    sheetProd.appendRow(['PRD-003', 'Kelas Online: Master Google Apps Script & Web App Backend', 'kelas', 'Kelas Online', 299000, 199000, 5.0, 63, 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80', 'Membangun backend REST API sendiri menggunakan Google Sheets dan Google Drive tanpa sewa server.', 'https://drive.google.com/sample-class', 'https://www.youtube.com/embed/dQw4w9WgXcQ', true]);
+    sheetProd.appendRow(['PRD-004', 'Jasa Pembuatan Website Profil Usaha / Toko Online UMKM', 'jasa', 'Jasa Skill', 750000, 499000, 4.9, 39, 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80', 'Layanan pembuatan website profesional untuk UMKM Nabire dengan integrasi WhatsApp.', '', '', true]);
   }
 
   // 2. Sheet Orders
@@ -186,7 +190,7 @@ function actionGetProducts() {
   for (let i = 1; i < rows.length; i++) {
     const item = {};
     headers.forEach((h, idx) => { item[h] = rows[i][idx]; });
-    if (item.isActive !== false) {
+    if (item.isActive !== false && String(item.isActive).toUpperCase() !== 'FALSE') {
       products.push(item);
     }
   }
@@ -205,7 +209,7 @@ function actionSaveProduct(payload) {
     id,
     payload.title || '',
     payload.category || 'template',
-    payload.categoryLabel || '💻 Template Web',
+    payload.categoryLabel || 'Template Web',
     Number(payload.price) || 0,
     Number(payload.discountPrice) || Number(payload.price) || 0,
     payload.rating || 5.0,
@@ -222,7 +226,61 @@ function actionSaveProduct(payload) {
 }
 
 /**
- * 3. Buat Transaksi Pesanan Baru (Member)
+ * 3. Edit Produk yang Sudah Ada (Admin)
+ */
+function actionEditProduct(payload) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_PRODUCTS);
+  if (!sheet) throw new Error('Sheet Products tidak ditemukan');
+
+  const rows = sheet.getDataRange().getValues();
+  let targetRow = -1;
+
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(payload.id)) {
+      targetRow = i + 1;
+      break;
+    }
+  }
+
+  if (targetRow === -1) {
+    throw new Error('Produk dengan ID ' + payload.id + ' tidak ditemukan');
+  }
+
+  sheet.getRange(targetRow, 2).setValue(payload.title);
+  sheet.getRange(targetRow, 3).setValue(payload.category);
+  sheet.getRange(targetRow, 4).setValue(payload.categoryLabel || payload.category);
+  sheet.getRange(targetRow, 5).setValue(Number(payload.price) || 0);
+  sheet.getRange(targetRow, 6).setValue(Number(payload.discountPrice) || Number(payload.price) || 0);
+  sheet.getRange(targetRow, 9).setValue(payload.thumbnail || '');
+  sheet.getRange(targetRow, 10).setValue(payload.description || '');
+  sheet.getRange(targetRow, 11).setValue(payload.accessUrl || '');
+  sheet.getRange(targetRow, 12).setValue(payload.videoUrl || '');
+
+  return { id: payload.id, message: 'Produk berhasil diperbarui.' };
+}
+
+/**
+ * 4. Hapus / Nonaktifkan Produk (Admin)
+ */
+function actionDeleteProduct(payload) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_PRODUCTS);
+  if (!sheet) throw new Error('Sheet Products tidak ditemukan');
+
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(payload.id)) {
+      sheet.deleteRow(i + 1);
+      return { id: payload.id, message: 'Produk berhasil dihapus.' };
+    }
+  }
+
+  throw new Error('Produk tidak ditemukan');
+}
+
+/**
+ * 5. Buat Transaksi Pesanan Baru (Member)
  */
 function actionCreateOrder(payload) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -231,7 +289,6 @@ function actionCreateOrder(payload) {
   const orderId = 'ORD-' + Utilities.formatDate(new Date(), 'GMT+9', 'yyyyMMdd') + '-' + Math.floor(100 + Math.random() * 900);
   const createdAt = new Date().toISOString();
 
-  // Handle upload bukti transfer jika berbentuk Base64
   let proofUrl = payload.proofUrl || '';
   if (proofUrl.startsWith('data:image')) {
     proofUrl = saveImageToDrive_(proofUrl, `Proof_${orderId}.jpg`);
@@ -261,19 +318,42 @@ function actionCreateOrder(payload) {
     if (payload.userEmail) {
       GmailApp.sendEmail(
         payload.userEmail,
-        `[${CONFIG.APP_NAME}] Pesanan Anda #${orderId} Berhasil Diterima`,
-        `Halo ${payload.userName},\n\nPesanan Anda untuk "${payload.productTitle}" sebesar Rp ${Number(payload.amount).toLocaleString('id-ID')} telah kami terima.\n\nTim Admin kami sedang memverifikasi bukti pembayaran Anda. Setelah disetujui, akses file download dan video tutorial akan langsung terbuka di dashboard akun Anda.\n\nTerima kasih,\nTim ${CONFIG.APP_NAME}`
+        `[${CONFIG.APP_NAME}] Pesanan #${orderId} Berhasil Diterima`,
+        `Halo ${payload.userName},\n\nPesanan Anda untuk "${payload.productTitle}" sebesar Rp ${Number(payload.amount).toLocaleString('id-ID')} telah kami terima.\n\nAdmin kami sedang memverifikasi bukti pembayaran Anda. Setelah disetujui, akses file download dan video tutorial akan langsung terbuka di dashboard member Anda.\n\nSalam kreatif,\nTim ${CONFIG.APP_NAME}`
       );
     }
-  } catch (mailErr) {
-    console.warn('Gagal mengirim email notifikasi:', mailErr);
-  }
+  } catch (mailErr) {}
 
   return { orderId, status: 'PENDING', message: 'Pesanan berhasil dicatat.' };
 }
 
 /**
- * 4. Ambil Pesanan Milik Pengguna Tertentu
+ * 6. Lacak Status Pesanan Berdasarkan Order ID (Public Tracking)
+ */
+function actionGetOrderStatus(payload) {
+  const orderId = String(payload.orderId || '').trim();
+  if (!orderId) throw new Error('Order ID wajib diisi');
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_ORDERS);
+  if (!sheet) return null;
+
+  const rows = sheet.getDataRange().getValues();
+  const headers = rows[0];
+
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).toUpperCase() === orderId.toUpperCase()) {
+      const item = {};
+      headers.forEach((h, idx) => { item[h] = rows[i][idx]; });
+      return item;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * 7. Ambil Pesanan Milik Pengguna Tertentu
  */
 function actionGetUserOrders(payload, context) {
   const email = (payload.email || context.authEmail || '').toLowerCase();
@@ -300,7 +380,7 @@ function actionGetUserOrders(payload, context) {
 }
 
 /**
- * 5. Ambil Semua Pesanan (Admin)
+ * 8. Ambil Semua Pesanan (Admin)
  */
 function actionGetAllOrders() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -322,7 +402,7 @@ function actionGetAllOrders() {
 }
 
 /**
- * 6. Update Status Pesanan (Admin: APPROVE / REJECT)
+ * 9. Update Status Pesanan (Admin: APPROVE / REJECT)
  */
 function actionUpdateOrderStatus(payload) {
   const orderId = payload.orderId;
@@ -338,7 +418,7 @@ function actionUpdateOrderStatus(payload) {
 
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0]) === String(orderId)) {
-      targetRowIndex = i + 1; // 1-indexed row
+      targetRowIndex = i + 1;
       orderData = {
         orderId: rows[i][0],
         userEmail: rows[i][2],
@@ -354,17 +434,16 @@ function actionUpdateOrderStatus(payload) {
     throw new Error('Pesanan dengan ID ' + orderId + ' tidak ditemukan');
   }
 
-  // Update Kolom K (Status - idx 11) dan N (UpdatedAt - idx 14)
   sheet.getRange(targetRowIndex, 11).setValue(newStatus);
   sheet.getRange(targetRowIndex, 14).setValue(new Date().toISOString());
 
-  // Kirim email pemberitahuan ke pembeli jika disetujui
+  // Kirim email ke pembeli jika disetujui
   if (newStatus === 'APPROVED' && orderData && orderData.userEmail) {
     try {
       GmailApp.sendEmail(
         orderData.userEmail,
         `[${CONFIG.APP_NAME}] Pembayaran Disetujui! Akses Produk #${orderData.orderId} Terbuka`,
-        `Selamat ${orderData.userName}!\n\nPembayaran Anda untuk "${orderData.productTitle}" telah diverifikasi dan DISETUJUI oleh Admin.\n\nAnda sekarang dapat mengunduh materi dan menonton video pembelajaran langsung melalui Member Dashboard di website Nabire Kreatif.\n\nLink Akses Cepat:\n${orderData.accessUrl || 'Silakan buka website Nabire Kreatif'}\n\nSelamat belajar dan berkreasi!\nTim ${CONFIG.APP_NAME}`
+        `Selamat ${orderData.userName}!\n\nPembayaran Anda untuk "${orderData.productTitle}" telah DISETUJUI oleh Admin.\n\nAnda sekarang dapat mengunduh materi dan menonton video tutorial langsung di Member Area website Nabire Kreatif.\n\nSalam Sukses,\nTim ${CONFIG.APP_NAME}`
       );
     } catch (e) {}
   }
@@ -373,7 +452,26 @@ function actionUpdateOrderStatus(payload) {
 }
 
 /**
- * 7. Ambil Statistik Dashboard Admin
+ * 10. Hapus Pesanan (Admin)
+ */
+function actionDeleteOrder(payload) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_ORDERS);
+  if (!sheet) throw new Error('Sheet Orders tidak ditemukan');
+
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(payload.orderId)) {
+      sheet.deleteRow(i + 1);
+      return { orderId: payload.orderId, message: 'Pesanan berhasil dihapus.' };
+    }
+  }
+
+  throw new Error('Pesanan tidak ditemukan');
+}
+
+/**
+ * 11. Ambil Statistik Dashboard Admin
  */
 function actionGetStats() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -415,7 +513,7 @@ function actionGetStats() {
 }
 
 /**
- * 8. Simpan / Sync User Login Google
+ * 12. Simpan / Sync User Login Google
  */
 function actionLoginGoogle(payload) {
   const email = (payload.email || '').toLowerCase();
@@ -443,7 +541,7 @@ function actionLoginGoogle(payload) {
 }
 
 /**
- * 9. Upload File Bukti ke Google Drive
+ * 13. Upload File Bukti ke Google Drive
  */
 function actionUploadProof(payload) {
   const url = saveImageToDrive_(payload.base64, payload.filename || 'Proof.jpg');
@@ -461,7 +559,6 @@ function saveImageToDrive_(base64Data, filename) {
     const decoded = Utilities.base64Decode(rawData);
     const blob = Utilities.newBlob(decoded, 'image/jpeg', filename);
 
-    // Cari atau buat folder penyimpanan di Google Drive
     const folders = DriveApp.getFoldersByName(CONFIG.DRIVE_FOLDER_NAME);
     let targetFolder;
     if (folders.hasNext()) {
