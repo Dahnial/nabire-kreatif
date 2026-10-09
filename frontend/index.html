@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nabire Kreatif — Platform Produk Digital, Template Web & Kelas Online</title>
+  <meta name="description" content="Pusat E-Book, Template Website modern lengkap video tutorial, Jasa Desain Grafis & Web, serta Kelas Online terbaik di Nabire dan Papua.">
+  <meta name="keywords" content="Nabire Kreatif, Produk Digital Nabire, Template Web Papua, Jasa Desain Nabire, Kelas Online Google Apps Script">
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Google Identity Services (GIS) Library -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- 1. NAVIGATION BAR -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div class="brand" onclick="window.AppInstance.switchView('catalog')">
+        <div class="brand-logo">✨</div>
+        <div class="brand-text">
+          <h1>Nabire Kreatif</h1>
+          <span>Digital Products & Skills</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <ul class="nav-menu">
+        <li><a href="#" class="nav-link active" data-nav-target="catalog">🛍️ Katalog</a></li>
+        <li><a href="#" class="nav-link" data-nav-target="jasa">🎨 Jasa Desain & Web</a></li>
+        <li><a href="#" class="nav-link" data-nav-target="kelas">🎓 Kelas Online</a></li>
+        <li><a href="#" class="nav-link" data-nav-target="member">📚 Produk Saya</a></li>
+        <li><a href="#" class="nav-link" data-nav-target="admin" style="display: none;">⚡ Panel Admin</a></li>
+      </ul>
+
+      <!-- User & Theme Actions -->
+      <div class="nav-actions">
+        <div id="authSection">
+          <!-- Populated by auth.js -->
+        </div>
+        <button id="btnThemeToggle" class="btn-icon" title="Ganti Mode Gelap / Terang">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. MAIN APPLICATION VIEWS -->
+  <main class="container">
+
+    <!-- ==================== VIEW 1: KATALOG UTAMA ==================== -->
+    <div id="viewCatalog" class="app-view">
+      <!-- Hero Banner -->
+      <section class="hero-section">
+        <div class="hero-pill">
+          <span>🚀 Memberdayakan Kreator & UMKM Nabire Menuju Era Digital</span>
+        </div>
+        <h2 class="hero-title">
+          Tingkatkan Skill Digital & Bisnismu Bersama <span class="gradient-text">Nabire Kreatif</span>
+        </h2>
+        <p class="hero-description">
+          Akses e-book praktis, template website siap pakai lengkap dengan video panduan langkah demi langkah, jasa pengerjaan web & desain profesional, serta kelas online bergaransi.
+        </p>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="window.AppInstance.switchView('catalog')">🔥 Jelajahi Semua Produk</button>
+          <a href="#" class="btn-secondary wa-consult-btn" target="_blank">💬 Konsultasi Jasa via WhatsApp</a>
+        </div>
+      </section>
+
+      <!-- Category Filter & Search Toolbar -->
+      <section class="toolbar-section">
+        <div class="glass-panel toolbar-wrapper">
+          <div class="category-chips">
+            <button class="chip-btn active" data-category="all">🌟 Semua</button>
+            <button class="chip-btn" data-category="ebook">📚 E-Book</button>
+            <button class="chip-btn" data-category="template">💻 Template Web</button>
+            <button class="chip-btn" data-category="jasa">🎨 Jasa Skill</button>
+            <button class="chip-btn" data-category="kelas">🎓 Kelas Online</button>
+          </div>
+
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari template, ebook, kelas...">
+          </div>
+        </div>
+      </section>
+
+      <!-- Products Grid -->
+      <section>
+        <div id="catalogLoading" class="state-box" style="display: none;">
+          <p>Memuat koleksi produk terbaik...</p>
+        </div>
+
+        <div id="productsGrid" class="products-grid">
+          <!-- Populated by app.js -->
+        </div>
+
+        <div id="catalogEmpty" class="glass-card state-box" style="display: none;">
+          <div class="state-icon">🔍</div>
+          <h3>Produk Tidak Ditemukan</h3>
+          <p>Coba kata kunci pencarian lain atau pilih kategori yang berbeda.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== VIEW 2: DASHBOARD MEMBER ("PRODUK SAYA") ==================== -->
+    <div id="viewMember" class="app-view dashboard-view" style="display: none; padding-top: 2rem;">
+      <div class="section-header">
+        <h2>📚 Akses Belajar & Unduhan Saya</h2>
+        <p>Semua e-book, template source code, dan materi video kelas yang telah Anda miliki.</p>
+      </div>
+
+      <div id="memberOrdersGrid" class="member-items-grid">
+        <!-- Populated by app.js -->
+      </div>
+
+      <div id="memberEmptyState" class="glass-card state-box" style="display: none;">
+        <!-- Populated by app.js -->
+      </div>
+    </div>
+
+    <!-- ==================== VIEW 3: PANEL ADMIN ==================== -->
+    <div id="viewAdmin" class="app-view dashboard-view" style="display: none; padding-top: 2rem;">
+      <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2>⚡ Panel Manajemen & Approval Admin</h2>
+          <p>Verifikasi bukti pembayaran pembeli dan kelola katalog produk Nabire Kreatif.</p>
+        </div>
+        <button class="btn-primary" onclick="document.getElementById('modalAddProduct').classList.add('active')">
+          + Tambah Produk Baru
+        </button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="glass-card stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value" id="adminStatRevenue">Rp 0</div>
+          <div class="stat-label">Total Omset Disetujui</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value" style="color: var(--amber-400);" id="adminStatPending">0</div>
+          <div class="stat-label">Pesanan Butuh Verifikasi</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-value" id="adminStatOrders">0</div>
+          <div class="stat-label">Total Semua Transaksi</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon">🏷️</div>
+          <div class="stat-value" id="adminStatProducts">0</div>
+          <div class="stat-label">Total Produk Aktif</div>
+        </div>
+      </div>
+
+      <!-- Admin Orders Table -->
+      <div class="glass-panel" style="padding: 1.5rem;">
+        <h3 style="margin-bottom: 1rem; font-size: 1.15rem;">📋 Daftar Transaksi Pembelian</h3>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Pembeli</th>
+                <th>Produk</th>
+                <th>Nominal</th>
+                <th>Status</th>
+                <th>Aksi Verifikasi</th>
+              </tr>
+            </thead>
+            <tbody id="adminOrdersTableBody">
+              <!-- Populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 3. FLOATING WHATSAPP CONSULTATION WIDGET -->
+  <div class="whatsapp-widget">
+    <div id="whatsappPopup" class="whatsapp-popup">
+      <div class="whatsapp-popup-header">
+        <span style="font-size: 1.5rem;">💬</span>
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 700;">Admin Nabire Kreatif</h4>
+          <span style="font-size: 0.72rem; opacity: 0.9;">Online • Siap Melayani Anda</span>
+        </div>
+      </div>
+      <div class="whatsapp-popup-body">
+        <p style="font-size: 0.82rem; color: var(--text-secondary);">
+          Punya pertanyaan seputar produk digital, jasa pembuatan website, atau materi kelas? Pilih topik di bawah:
+        </p>
+        <div class="whatsapp-quick-pills">
+          <a href="#" class="whatsapp-pill-link wa-consult-btn">🎨 Konsultasi Jasa Desain & Web</a>
+          <a href="#" class="whatsapp-pill-link wa-consult-btn">💳 Konfirmasi Pembayaran Manual</a>
+          <a href="#" class="whatsapp-pill-link wa-consult-btn">❓ Tanya Jawab Kelas Online</a>
+        </div>
+      </div>
+    </div>
+
+    <button id="btnToggleWhatsapp" class="whatsapp-btn" title="Chat WhatsApp">
+      💬
+    </button>
+  </div>
+
+  <!-- 4. MODALS -->
+
+  <!-- Modal A: Detail Produk -->
+  <div id="modalDetail" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="detailTitle">Detail Produk</h3>
+        <button class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="detailImage" src="" alt="Thumbnail" style="width: 100%; height: 220px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+        <p id="detailDesc" style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.9rem; line-height: 1.6;"></p>
+        
+        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.6rem;">Fitur & Keunggulan:</h4>
+        <ul id="detailFeatures" style="list-style: none; display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+        </ul>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-glass);">
+          <div>
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Total Investasi:</span>
+            <span id="detailPrice" style="font-size: 1.4rem; font-weight: 800; color: var(--emerald-400);"></span>
+          </div>
+          <button id="btnDetailBuy" class="btn-primary">Beli Sekarang</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal B: Checkout & Pembayaran -->
+  <div id="modalCheckout" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>🛒 Checkout & Pembayaran</h3>
+        <button class="btn-close">&times;</button>
+      </div>
+      <form id="checkoutForm" class="modal-body">
+        <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-glass); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem;">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Produk yang Dipesan:</span>
+          <h4 id="checkoutProductTitle" style="font-size: 1rem; margin: 0.2rem 0;">-</h4>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.5rem;">
+            <span style="font-size: 0.85rem;">Total Tagihan:</span>
+            <span id="checkoutTotalAmount" style="font-size: 1.25rem; font-weight: 800; color: var(--emerald-400);">Rp 0</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Data Pembeli</label>
+          <input type="text" id="checkoutBuyerName" class="form-control" placeholder="Nama Lengkap" readonly style="margin-bottom: 0.5rem;">
+          <input type="email" id="checkoutBuyerEmail" class="form-control" placeholder="Email Google" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Pilih Metode Pembayaran</label>
+          <div id="paymentMethodsContainer" class="payment-methods-grid">
+            <!-- Populated by app.js -->
+          </div>
+        </div>
+
+        <div id="paymentInstructionBox">
+          <!-- QRIS / Bank Detail -->
+        </div>
+
+        <div class="form-group">
+          <label>Unggah Foto Bukti Transfer / Struk *</label>
+          <div class="upload-dropzone" onclick="document.getElementById('proofFileInput').click()">
+            <span style="font-size: 1.8rem; display: block; margin-bottom: 0.4rem;">📷</span>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Klik untuk memilih foto struk pembayaran</span>
+            <input type="file" id="proofFileInput" accept="image/*" style="display: none;" required>
+          </div>
+          <img id="proofPreviewImg" class="preview-proof-img" alt="Bukti Transfer">
+        </div>
+
+        <div class="modal-footer" style="padding: 1rem 0 0; margin-top: 1.25rem;">
+          <button type="button" class="btn-secondary btn-close">Batal</button>
+          <button type="submit" id="btnSubmitOrder" class="btn-primary">Konfirmasi Pembayaran</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal C: Login & Switcher Akun -->
+  <div id="modalLogin" class="modal-overlay">
+    <div class="modal-container" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3>👤 Masuk ke Nabire Kreatif</h3>
+        <button class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.5rem;">
+          Gunakan akun Google Anda untuk kemudahan akses e-book, template source code, dan kelas online kapan saja.
+        </p>
+
+        <!-- GIS Official Button Placeholder -->
+        <div id="googleSignInBtn" style="display: flex; justify-content: center; margin-bottom: 1.5rem;"></div>
+
+        <div style="position: relative; margin: 1.5rem 0; text-align: center;">
+          <span style="background: var(--bg-surface-elevated); padding: 0 0.75rem; font-size: 0.75rem; color: var(--text-muted); position: relative; z-index: 1;">ATAU UJI COBA CEPAT (MODE DEMO)</span>
+          <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-glass);"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+          <button class="btn-secondary" onclick="window.Auth.loginDemo('MEMBER'); window.AppInstance.closeAllModals();">
+            👤 Masuk sebagai Member (Budi Santoso)
+          </button>
+          <button class="btn-secondary" style="border-color: rgba(99,102,241,0.4);" onclick="window.Auth.loginDemo('ADMIN'); window.AppInstance.closeAllModals();">
+            ⚡ Masuk sebagai Admin / Owner
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal D: Video Player Modal -->
+  <div id="modalVideo" class="modal-overlay">
+    <div class="modal-container" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 id="videoPlayerTitle">🎬 Video Pembelajaran</h3>
+        <button class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 1rem;">
+        <iframe id="videoIframe" class="video-player-frame" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal E: Fullscreen Bukti Transfer (Admin) -->
+  <div id="modalProof" class="modal-overlay">
+    <div class="modal-container" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>🔍 Foto Bukti Transfer</h3>
+        <button class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <img id="proofFullImg" src="" alt="Bukti Transfer" style="max-width: 100%; max-height: 450px; border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal F: Tambah Produk Baru (Admin) -->
+  <div id="modalAddProduct" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>➕ Tambah Produk / Kelas Baru</h3>
+        <button class="btn-close">&times;</button>
+      </div>
+      <form id="addProductForm" class="modal-body">
+        <div class="form-group">
+          <label>Judul Produk / Kelas *</label>
+          <input type="text" id="newProdTitle" class="form-control" placeholder="Contoh: Template Web Kasir Toko" required>
+        </div>
+        <div class="form-group">
+          <label>Kategori *</label>
+          <select id="newProdCategory" class="form-control" required>
+            <option value="template">💻 Template Web</option>
+            <option value="ebook">📚 E-Book</option>
+            <option value="kelas">🎓 Kelas Online</option>
+            <option value="jasa">🎨 Jasa Skill & Desain</option>
+          </select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Harga Normal (Rp) *</label>
+            <input type="number" id="newProdPrice" class="form-control" placeholder="150000" required>
+          </div>
+          <div class="form-group">
+            <label>Harga Diskon (Rp)</label>
+            <input type="number" id="newProdDiscount" class="form-control" placeholder="99000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>URL Gambar Thumbnail</label>
+          <input type="url" id="newProdThumb" class="form-control" placeholder="https://images.unsplash.com/...">
+        </div>
+        <div class="form-group">
+          <label>Deskripsi Singkat</label>
+          <textarea id="newProdDesc" class="form-control" rows="3" placeholder="Jelaskan manfaat dan materi produk ini..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Link File Drive / Download (Khusus Pembeli)</label>
+          <input type="url" id="newProdAccess" class="form-control" placeholder="https://drive.google.com/...">
+        </div>
+        <div class="form-group">
+          <label>Link Video Pembelajaran (Embed YouTube / Drive)</label>
+          <input type="url" id="newProdVideo" class="form-control" placeholder="https://www.youtube.com/embed/...">
+        </div>
+        <div class="modal-footer" style="padding: 1rem 0 0;">
+          <button type="button" class="btn-secondary btn-close">Batal</button>
+          <button type="submit" class="btn-primary">Simpan ke Katalog</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- 6. FOOTER -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div>
+        <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">Nabire Kreatif ✨</div>
+        <p>Pusat Produk Digital, Template Web & Pelatihan Skill Online Papua.</p>
+      </div>
+      <div>
+        <p>&copy; 2026 Nabire Kreatif. All Rights Reserved. Built with BotSkilWeb-Pro.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT FILES -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
