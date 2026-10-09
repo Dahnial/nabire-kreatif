@@ -1,9 +1,9 @@
 /**
  * ============================================================================
- * NABIRE KREATIF - AUTENTIKASI GOOGLE IDENTITY SERVICES (GIS)
+ * NABIRE KREATIF - AUTENTIKASI GOOGLE IDENTITY SERVICES (GIS) & ACCOUNT MANAGER
  * ============================================================================
- * Modul autentikasi login akun Google (Gmail), decode JWT ID Token,
- * penyimpanan sesi pengguna (LocalStorage), dan proteksi hak akses (Role).
+ * Mendukung Login Google 1-Klik resmi (GIS), Login Email Akun Google langsung,
+ * serta evaluasi otomatis hak akses Admin untuk email yang terdaftar.
  * ============================================================================
  */
 
@@ -14,7 +14,6 @@ class AuthManager {
     this.initGIS();
   }
 
-  // Ambil data user tersimpan dari LocalStorage
   loadStoredUser() {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -24,18 +23,14 @@ class AuthManager {
     }
   }
 
-  // Simpan data user ke LocalStorage
   saveUser(userData) {
     this.currentUser = userData;
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(userData));
     this.notifyAuthChanged();
   }
 
-  // Inisialisasi Google Identity Services
   initGIS() {
     const clientId = window.APP_CONFIG?.GOOGLE_CLIENT_ID;
-    
-    // Inisialisasi saat library GIS selesai dimuat oleh browser
     window.addEventListener('load', () => {
       if (typeof google !== 'undefined' && google.accounts && clientId) {
         try {
@@ -46,7 +41,6 @@ class AuthManager {
             cancel_on_tap_outside: true
           });
 
-          // Render tombol login Google jika kontainer tersedia
           const btnContainer = document.getElementById('googleSignInBtn');
           if (btnContainer) {
             google.accounts.id.renderButton(btnContainer, {
@@ -65,19 +59,16 @@ class AuthManager {
     });
   }
 
-  // Handler respon token dari Google
   handleCredentialResponse(response) {
     if (!response || !response.credential) return;
 
     try {
-      // Decode JWT Payload
       const jwtPayload = this.decodeJwt(response.credential);
-      const email = (jwtPayload.email || '').toLowerCase();
+      const email = (jwtPayload.email || '').toLowerCase().trim();
       const name = jwtPayload.name || email.split('@')[0];
       const picture = jwtPayload.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff`;
 
-      // Evaluasi Role Admin / Member
-      const adminList = (window.APP_CONFIG?.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+      const adminList = (window.APP_CONFIG?.ADMIN_EMAILS || []).map(e => e.toLowerCase().trim());
       const role = adminList.includes(email) ? 'ADMIN' : 'MEMBER';
 
       const userData = {
@@ -91,7 +82,7 @@ class AuthManager {
       this.saveUser(userData);
 
       if (window.Toast) {
-        window.Toast.show(`Selamat datang, ${userData.name}!`, 'success');
+        window.Toast.show(`Selamat datang, ${userData.name}! (${userData.role})`, 'success');
       }
 
     } catch (err) {
@@ -102,7 +93,37 @@ class AuthManager {
     }
   }
 
-  // Decode JSON Web Token (JWT) tanpa dependensi eksternal
+  // Login Langsung dengan Alamat Email Gmail (Auto Role Detect)
+  loginWithEmail(emailInput, customName = '') {
+    const email = String(emailInput || '').toLowerCase().trim();
+    if (!email || !email.includes('@')) {
+      if (window.Toast) window.Toast.show('Masukkan alamat email yang valid!', 'warning');
+      return false;
+    }
+
+    const adminList = (window.APP_CONFIG?.ADMIN_EMAILS || []).map(e => e.toLowerCase().trim());
+    const isAdmin = adminList.includes(email);
+    const name = customName || (isAdmin ? 'Dahnial (Admin)' : email.split('@')[0]);
+    const picture = isAdmin 
+      ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'
+      : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff`;
+
+    const userData = {
+      email: email,
+      name: name,
+      picture: picture,
+      role: isAdmin ? 'ADMIN' : 'MEMBER',
+      loginAt: new Date().toISOString()
+    };
+
+    this.saveUser(userData);
+
+    if (window.Toast) {
+      window.Toast.show(`Masuk sebagai ${userData.name} [Role: ${userData.role}]`, 'success');
+    }
+    return true;
+  }
+
   decodeJwt(token) {
     try {
       const base64Url = token.split('.')[1];
@@ -119,26 +140,14 @@ class AuthManager {
     }
   }
 
-  // Login Demo / Simulasi (Memudahkan pengujian tanpa Google Client ID)
   loginDemo(role = 'MEMBER') {
-    const isOwner = role === 'ADMIN';
-    const demoUser = {
-      email: isOwner ? 'admin@nabirekreatif.com' : 'budisantoso@gmail.com',
-      name: isOwner ? 'Admin Nabire Kreatif' : 'Budi Santoso (Member)',
-      picture: isOwner 
-        ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' 
-        : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-      role: role,
-      loginAt: new Date().toISOString()
-    };
-
-    this.saveUser(demoUser);
-    if (window.Toast) {
-      window.Toast.show(`Masuk sebagai ${demoUser.name} (${demoUser.role})`, 'success');
+    if (role === 'ADMIN') {
+      this.loginWithEmail('dahnial22@gmail.com', 'Dahnial (Admin)');
+    } else {
+      this.loginWithEmail('budisantoso@gmail.com', 'Budi Santoso (Member)');
     }
   }
 
-  // Logout akun
   logout() {
     this.currentUser = null;
     localStorage.removeItem(this.STORAGE_KEY);
@@ -148,28 +157,23 @@ class AuthManager {
     }
   }
 
-  // Cek apakah user sedang login
   isLoggedIn() {
     return !!this.currentUser && !!this.currentUser.email;
   }
 
-  // Cek apakah user adalah Admin
   isAdmin() {
     if (!this.currentUser) return false;
-    const adminList = (window.APP_CONFIG?.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-    return this.currentUser.role === 'ADMIN' || adminList.includes((this.currentUser.email || '').toLowerCase());
+    const adminList = (window.APP_CONFIG?.ADMIN_EMAILS || []).map(e => e.toLowerCase().trim());
+    return this.currentUser.role === 'ADMIN' || adminList.includes((this.currentUser.email || '').toLowerCase().trim());
   }
 
-  // Kirim event perubahan autentikasi ke seluruh aplikasi
   notifyAuthChanged() {
     window.dispatchEvent(new CustomEvent('auth-changed', { detail: this.currentUser }));
   }
 }
 
-// Inisialisasi global auth
 window.Auth = new AuthManager();
 
-// Global wrapper untuk callback Google Sign-In HTML Tag
 function handleGoogleLoginResponse(res) {
   if (window.Auth) {
     window.Auth.handleCredentialResponse(res);

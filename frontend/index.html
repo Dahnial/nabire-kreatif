@@ -550,26 +550,35 @@
         </button>
       </div>
       <div class="modal-body" style="text-align: center;">
-        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.5rem;">
-          Gunakan akun Google Anda untuk kemudahan akses e-book, template source code, dan materi kelas kapan saja.
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">
+          Gunakan akun Google Anda untuk kemudahan akses e-book, template source code, materi kelas, dan panel kelola Admin.
         </p>
 
         <!-- GIS Button Container -->
-        <div id="googleSignInBtn" style="display: flex; justify-content: center; margin-bottom: 1.5rem;"></div>
+        <div id="googleSignInBtn" style="display: flex; justify-content: center; margin-bottom: 1rem;"></div>
 
-        <div style="position: relative; margin: 1.5rem 0; text-align: center;">
-          <span style="background: var(--bg-surface-elevated); padding: 0 0.75rem; font-size: 0.72rem; color: var(--text-muted); position: relative; z-index: 1;">UJI COBA CEPAT (MODE DEMO)</span>
+        <!-- Direct Email Login Form -->
+        <form onsubmit="event.preventDefault(); const em = document.getElementById('loginEmailInput').value; if(window.Auth.loginWithEmail(em)) window.AppInstance.closeAllModals();" style="text-align: left; margin-bottom: 1.25rem;">
+          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.4rem; display: block;">Masuk dengan Email Google / Gmail:</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="email" id="loginEmailInput" class="form-input" placeholder="contoh: dahnial22@gmail.com" required style="font-size: 0.88rem;">
+            <button type="submit" class="btn-primary" style="white-space: nowrap; padding: 0 1rem; font-size: 0.85rem;">Masuk</button>
+          </div>
+        </form>
+
+        <div style="position: relative; margin: 1.25rem 0; text-align: center;">
+          <span style="background: var(--bg-surface-elevated); padding: 0 0.75rem; font-size: 0.72rem; color: var(--text-muted); position: relative; z-index: 1;">AKSES CEPAT 1-KLIK</span>
           <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-glass);"></div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-          <button class="btn-secondary" onclick="window.Auth.loginDemo('MEMBER'); window.AppInstance.closeAllModals();">
-            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Masuk sebagai Member (Dahnial)
-          </button>
-          <button class="btn-secondary" style="border-color: rgba(99,102,241,0.4);" onclick="window.Auth.loginDemo('ADMIN'); window.AppInstance.closeAllModals();">
+          <button class="btn-primary" style="background: linear-gradient(135deg, #4f46e5, #06b6d4); font-size: 0.88rem; justify-content: center;" onclick="window.Auth.loginDemo('ADMIN'); window.AppInstance.closeAllModals();">
             <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            Masuk sebagai Admin / Owner
+            ⚡ Masuk sebagai Admin (dahnial22@gmail.com)
+          </button>
+          <button class="btn-secondary" style="font-size: 0.85rem; justify-content: center;" onclick="window.Auth.loginDemo('MEMBER'); window.AppInstance.closeAllModals();">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Masuk sebagai Member Demo
           </button>
         </div>
       </div>

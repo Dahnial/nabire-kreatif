@@ -16,6 +16,7 @@
 
 const CONFIG = {
   APP_NAME: 'Nabire Kreatif',
+  SPREADSHEET_ID: '', // Biarkan kosong jika Script langsung dibuka dari menu Google Spreadsheet (Container-bound)
   SHEET_PRODUCTS: 'Products',
   SHEET_ORDERS: 'Orders',
   SHEET_USERS: 'Users',
@@ -28,6 +29,20 @@ const CONFIG = {
     'owner@nabirekreatif.com'
   ]
 };
+
+/**
+ * Helper Mendapatkan Objek Spreadsheet (Mendukung Container-bound maupun Standalone)
+ */
+function getSpreadsheet_() {
+  if (CONFIG.SPREADSHEET_ID && CONFIG.SPREADSHEET_ID.trim() !== '') {
+    try {
+      return SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID.trim());
+    } catch (e) {
+      console.warn('Gagal buka spreadsheet by ID, beralih ke getActiveSpreadsheet:', e);
+    }
+  }
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
 
 // Routing Aksi API & Hak Akses
 const ACTIONS = {
@@ -128,7 +143,7 @@ function executeAction_(actionName, payload, authEmail) {
  * Inisialisasi Otomatis Tabel Google Sheets jika Baru Dibuat
  */
 function ensureDatabaseInitialized_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   
   // 1. Sheet Products
   let sheetProd = ss.getSheetByName(CONFIG.SHEET_PRODUCTS);
@@ -177,7 +192,7 @@ function ensureDatabaseInitialized_() {
  * 1. Ambil Semua Katalog Produk Aktif
  */
 function actionGetProducts() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_PRODUCTS);
   if (!sheet) return [];
 
@@ -201,7 +216,7 @@ function actionGetProducts() {
  * 2. Simpan Produk Baru (Admin)
  */
 function actionSaveProduct(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_PRODUCTS);
   
   const id = payload.id || 'PRD-' + Utilities.getUuid().substring(0, 6).toUpperCase();
@@ -229,7 +244,7 @@ function actionSaveProduct(payload) {
  * 3. Edit Produk yang Sudah Ada (Admin)
  */
 function actionEditProduct(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_PRODUCTS);
   if (!sheet) throw new Error('Sheet Products tidak ditemukan');
 
@@ -264,7 +279,7 @@ function actionEditProduct(payload) {
  * 4. Hapus / Nonaktifkan Produk (Admin)
  */
 function actionDeleteProduct(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_PRODUCTS);
   if (!sheet) throw new Error('Sheet Products tidak ditemukan');
 
@@ -283,7 +298,7 @@ function actionDeleteProduct(payload) {
  * 5. Buat Transaksi Pesanan Baru (Member)
  */
 function actionCreateOrder(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_ORDERS);
   
   const orderId = 'ORD-' + Utilities.formatDate(new Date(), 'GMT+9', 'yyyyMMdd') + '-' + Math.floor(100 + Math.random() * 900);
@@ -334,7 +349,7 @@ function actionGetOrderStatus(payload) {
   const orderId = String(payload.orderId || '').trim();
   if (!orderId) throw new Error('Order ID wajib diisi');
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_ORDERS);
   if (!sheet) return null;
 
@@ -359,7 +374,7 @@ function actionGetUserOrders(payload, context) {
   const email = (payload.email || context.authEmail || '').toLowerCase();
   if (!email) return [];
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_ORDERS);
   if (!sheet) return [];
 
@@ -383,7 +398,7 @@ function actionGetUserOrders(payload, context) {
  * 8. Ambil Semua Pesanan (Admin)
  */
 function actionGetAllOrders() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_ORDERS);
   if (!sheet) return [];
 
@@ -408,7 +423,7 @@ function actionUpdateOrderStatus(payload) {
   const orderId = payload.orderId;
   const newStatus = payload.status; // APPROVED / REJECTED
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_ORDERS);
   if (!sheet) throw new Error('Sheet Orders tidak ditemukan');
 
@@ -455,7 +470,7 @@ function actionUpdateOrderStatus(payload) {
  * 10. Hapus Pesanan (Admin)
  */
 function actionDeleteOrder(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheet = ss.getSheetByName(CONFIG.SHEET_ORDERS);
   if (!sheet) throw new Error('Sheet Orders tidak ditemukan');
 
@@ -474,7 +489,7 @@ function actionDeleteOrder(payload) {
  * 11. Ambil Statistik Dashboard Admin
  */
 function actionGetStats() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const sheetOrders = ss.getSheetByName(CONFIG.SHEET_ORDERS);
   const sheetProd = ss.getSheetByName(CONFIG.SHEET_PRODUCTS);
 
@@ -519,7 +534,7 @@ function actionLoginGoogle(payload) {
   const email = (payload.email || '').toLowerCase();
   if (!email) return { ok: false, error: 'Email wajib diisi' };
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   let sheet = ss.getSheetByName(CONFIG.SHEET_USERS);
   
   const role = getUserRole_(email);
@@ -594,7 +609,7 @@ function jsonResponse_(dataObj) {
 
 function logError_(action, err) {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = getSpreadsheet_();
     let sheet = ss.getSheetByName(CONFIG.SHEET_LOGS);
     if (sheet) {
       sheet.appendRow([new Date(), action, err.message, err.stack || '']);
